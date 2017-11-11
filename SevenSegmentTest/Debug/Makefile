@@ -43,9 +43,9 @@ SUBDIRS :=  \
 C_SRCS +=  \
 ../Board/board.c \
 ../Drivers/max7221.c \
-../Drivers/usi_twcs.c \
 ../Interfaces/adc.c \
 ../Interfaces/ioport.c \
+../Interfaces/usi_twcs.c \
 ../main.c
 
 
@@ -58,33 +58,33 @@ ASM_SRCS +=
 OBJS +=  \
 Board/board.o \
 Drivers/max7221.o \
-Drivers/usi_twcs.o \
 Interfaces/adc.o \
 Interfaces/ioport.o \
+Interfaces/usi_twcs.o \
 main.o
 
 OBJS_AS_ARGS +=  \
 Board/board.o \
 Drivers/max7221.o \
-Drivers/usi_twcs.o \
 Interfaces/adc.o \
 Interfaces/ioport.o \
+Interfaces/usi_twcs.o \
 main.o
 
 C_DEPS +=  \
 Board/board.d \
 Drivers/max7221.d \
-Drivers/usi_twcs.d \
 Interfaces/adc.d \
 Interfaces/ioport.d \
+Interfaces/usi_twcs.d \
 main.d
 
 C_DEPS_AS_ARGS +=  \
 Board/board.d \
 Drivers/max7221.d \
-Drivers/usi_twcs.d \
 Interfaces/adc.d \
 Interfaces/ioport.d \
+Interfaces/usi_twcs.d \
 main.d
 
 OUTPUT_FILE_PATH +=SevenSegmentTest.elf

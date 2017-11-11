@@ -5,6 +5,7 @@
  */
 
 #include "board.h"
+#include "ioport.h"
 
 #include <stdlib.h>
 #include <avr/io.h>
@@ -25,20 +26,9 @@
 
 struct spi_interface
 {
-	volatile uint8_t* scl_direction_register; /** the register which controls the direction of the SCL pin */
-	volatile uint8_t* scl_port;				  /** the port for SCL (used for writing) */
-	volatile uint8_t* scl_pin;				  /** the pin for SCL (used for reading) */
-	         uint8_t  scl_bit;				  /** the bit number of SCL on the pin; the direction register and the port */
-
-	volatile uint8_t* sda_direction_register; /** the register which controls the direction of the SDA pin */
-	volatile uint8_t* sda_port;				  /** the port for SDA (used for writing) */
-	volatile uint8_t* sda_pin;				  /** the pin for SDA (used for reading) */
-	         uint8_t  sda_bit;				  /** the bit number of SDA on the pin; the direction register and the port */
-
-	volatile uint8_t* cs_direction_register;  /** the register which controls the direction of the CS pin */
-	volatile uint8_t* cs_port;				  /** the port for CS (used for writing) */
-	volatile uint8_t* cs_pin;				  /** the pin for CS (used for reading) */
-			 uint8_t  cs_bit;				  /** the bit number of CS on the pin; the direction register and the port */
+	ioport_interface* scl;
+	ioport_interface* sda;
+	ioport_interface* cs;
 
 	volatile uint8_t* usi_data_register;	  /** the universal serial interface data register */
 	volatile uint8_t* usi_control_register;	  /** the universal serial interface control register */
@@ -48,18 +38,17 @@ struct spi_interface
 /* Private Functions */
 
  void SPI_Push(const spi_interface *interface, uint8_t data) {
-	 *(interface->scl_port) &= ~(1 << interface->scl_bit);
+	 ioport_setlow(interface->scl);
 	 *(interface->usi_data_register) = data;
-
 	 *(interface->usi_status_register) = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)| /* Clear flags */
 										 (0x0 << USICNT0);											  /* set USI to shift 8 bits */
 
 	 do {
 		 _delay_us(T2_TWI);
 		 *(interface->usi_control_register) |= (1 << USITC); /* toggle clock - positive edge */
-		 while (!(*(interface->scl_pin) & (1 << interface->scl_bit)));  /* wait for SCL to go high. */
+		 ioport_pause_until_high(interface->scl);
 		 _delay_us(T4_TWI);
-		 *(interface->usi_control_register) |= (1 << USITC); /* toggle clock - positive edge */
+		 *(interface->usi_control_register) |= (1 << USITC); /* toggle clock - negative edge */
 	 } while (!(*(interface->usi_status_register) & (1 << USIOIF)));
 
 	 /* do reading here when the time comes */
@@ -70,20 +59,9 @@ struct spi_interface
 /* Implementation of public functions */
 
 spi_interface *tw_create_spi_interface( 
-	volatile uint8_t* scl_direction_register, 
-	volatile uint8_t* scl_port, 
-	volatile uint8_t* scl_pin, 
-	         uint8_t  scl_bit, 
-
-	volatile uint8_t* sda_direction_register, 
-	volatile uint8_t* sda_port, 
-	volatile uint8_t* sda_pin, 
-	         uint8_t  sda_bit,
-
-    volatile uint8_t* cs_direction_register, 
-    volatile uint8_t* cs_port,				  
-    volatile uint8_t* cs_pin,				  
-			 uint8_t  cs_bit,				
+	ioport_interface* scl,
+	ioport_interface* sda,
+	ioport_interface* cs,				
 			   
 	volatile uint8_t* usi_data_register, 
 	volatile uint8_t* usi_control_register, 
@@ -92,20 +70,9 @@ spi_interface *tw_create_spi_interface(
 {
 	spi_interface *interface = malloc(sizeof(spi_interface));
 
-	interface->scl_direction_register = scl_direction_register;
-	interface->scl_port = scl_port;
-	interface->scl_pin = scl_pin;
-	interface->scl_bit = scl_bit;
-
-	interface->sda_direction_register = sda_direction_register;
-	interface->sda_port = sda_port;
-	interface->sda_pin = sda_pin;
-	interface->sda_bit = sda_bit;
-
-	interface->cs_direction_register = cs_direction_register;
-	interface->cs_port = cs_port;
-	interface->cs_pin = cs_pin;
-	interface->cs_bit = cs_bit;
+	interface->scl = scl;
+	interface->sda = sda;
+	interface->cs =  cs;
 
 	interface->usi_data_register = usi_data_register;
 	interface->usi_control_register = usi_control_register;
@@ -114,11 +81,12 @@ spi_interface *tw_create_spi_interface(
 }
 
  void spi_setup(const spi_interface *interface) {
-	 /* de-select the correct chip */
-	 *(interface->cs_direction_register) |= (1 << interface->cs_bit);
+	  ioport_configure_as_output(interface->scl);
+	  ioport_configure_as_output(interface->sda);
+	  ioport_configure_as_output(interface->cs);
 
-	 *(interface->scl_direction_register) |= (1 <<interface->scl_bit);
-	 *(interface->sda_direction_register) |= (1 <<interface->sda_bit);
+	  /* de-select chip */
+	  ioport_sethigh(interface->cs);
 
 	 /* Pre-load register with 1 (as pull-ups mean a floating line is high). */
 	 *(interface->usi_data_register) = 0xFF;
@@ -137,18 +105,19 @@ spi_interface *tw_create_spi_interface(
 	 /* at this stage we should detect if this is a read or write operation - but I'm only doing writes right now */
 
 	 /* select appropriate chip */
-	 *(interface->cs_port) &= ~(1<<interface->cs_bit); 
+	 ioport_setlow(interface->cs);
 
 	 /* release SCL so that a start condition can be raised */
-	 *(interface->scl_port) |= (1 << interface->scl_bit);
-	 /* chug around this until the pin rises */
-	 while (!( *(interface->scl_pin) & (1 << interface->scl_bit)))
+	 ioport_sethigh(interface->scl);
+
+	 /* wait until SCL comes high in case a slave is holding it low */
+	 ioport_pause_until_high(interface->scl);
 	 
 	 /* start condition */
-	 *(interface->sda_port) &= ~(1 << interface->sda_bit); // pull SDA low.
+	 ioport_setlow(interface->sda);
 	 _delay_us(T2_TWI);
-	 *(interface->scl_port) &= ~(1 << interface->scl_bit); // pull SCL low.
-	 *(interface->sda_port) |=  (1 << interface->sda_bit); // release SDA.
+	 ioport_setlow(interface->scl);
+	 ioport_sethigh(interface->sda);
 
 	 /* should probably do something to support messages longer than one byte */
 
@@ -157,5 +126,5 @@ spi_interface *tw_create_spi_interface(
 	 SPI_Push(interface, data);
 
 	 /* raise appropriate chip select pin */
-	 PORTB |= (1 << interface->cs_bit); /* de-select SS display driver */
+	 ioport_sethigh(interface->cs);
  }

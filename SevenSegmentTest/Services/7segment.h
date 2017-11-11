@@ -54,6 +54,11 @@ EXTERN void ss_blank_digit( const ss_instance *instance, uint8_t digit);
 EXTERN void ss_write_int(const ss_instance *instance, int value);
 
 /**
+ * turns on the decimal point of a particular digit                                                                    
+ */
+EXTERN void ss_set_dp(ss_instance *instance, uint8_t digit);
+
+/**
  * Initializes the 7 segment display module.                                                                    
  */
 EXTERN ss_instance* ss_init( const spi_interface *interface, int digits );

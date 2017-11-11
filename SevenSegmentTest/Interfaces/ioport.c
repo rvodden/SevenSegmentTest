@@ -5,6 +5,12 @@
  *  Author: Richard
  */ 
 
+ #include <stdlib.h>
+ #include <stdint.h>
+
+ #define IOPORT_IMPORT
+ #include "ioport.h"
+
  /* Private Macros and Constants */
 
  /* Declarations of opaque structures */
@@ -21,9 +27,42 @@
  /* Implementation of public functions */
 
 ioport_interface* ioport_construct (
-	volatile uint8_t* direction_register;
-	volatile uint8_t* port;
-	volatile uint8_t* pin;
-	uint8_t  bit;
+	volatile uint8_t* direction_register,
+	volatile uint8_t* port,
+	volatile uint8_t* pin,
+	uint8_t  bit
 )
+{
+	ioport_interface* interface = malloc(sizeof(ioport_interface));
+	interface->direction_register = direction_register;
+	interface->port = port;
+	interface->pin = pin;
+	interface->bit = bit;
+
+	return interface;
+};
+
+void inline ioport_setlow(ioport_interface* interface) {
+	*(interface->port) &= ~(1 << interface->bit);
+}
+
+void inline ioport_sethigh(ioport_interface* interface) {
+	*(interface->port) |= (1 << interface->bit);
+}
+
+void inline ioport_toggle(ioport_interface* interface) {
+	*(interface->port) ^= ( 1 << interface->bit);
+}
+
+void inline ioport_pause_until_high(ioport_interface* interface) {
+	while (!( *(interface->pin) & (1 << interface->bit)));
+}
+
+void inline ioport_configure_as_input(ioport_interface* interface) {
+	*(interface->direction_register) &= ~(1 << interface->bit);
+};
+
+void inline ioport_configure_as_output(ioport_interface* interface) {
+	*(interface->direction_register) |= (1 << interface->bit);
+};
  
