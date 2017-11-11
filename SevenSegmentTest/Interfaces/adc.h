@@ -24,6 +24,14 @@ typedef struct adc_interface adc_interface;
 
 /* Function Prototypes */
 
+EXTERN adc_interface* adc_construct(
+	volatile uint8_t *mux_selection_register,
+	volatile uint8_t *control_a_register,
+	volatile uint8_t *control_b_register,
+	volatile uint8_t *high_data_register,
+	volatile uint8_t *low_data_register
+);
+
 EXTERN void adc_setup(const adc_interface* interface);
 EXTERN int adc_read(const adc_interface* interface);
 
