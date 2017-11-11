@@ -56,7 +56,7 @@ EXTERN void ss_write_int(const ss_instance *instance, int value);
 /**
  * Initializes the 7 segment display module.                                                                    
  */
-EXTERN ss_instance* ss_init( const SPI_interface *interface, int digits );
+EXTERN ss_instance* ss_init( const spi_interface *interface, int digits );
 
 #undef SSEGMENT_IMPORT
 #undef EXTERN

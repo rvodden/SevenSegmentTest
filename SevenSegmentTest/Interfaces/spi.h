@@ -1,5 +1,5 @@
 /*
- * SPI.h
+ * spi.h
  *
  * @copyright 2017 Richard Vodden
  * @license GPL 3.0
@@ -21,14 +21,14 @@
 
 /* Types */
 
-typedef struct SPI_interface SPI_interface;
+typedef struct spi_interface spi_interface;
 
 /* Global Variables */
 
 /* Function Prototypes */
 
-EXTERN void SPI_Setup(const SPI_interface* interface);
-EXTERN void SPI_Write(const SPI_interface* interface, uint8_t addr, uint8_t data);
+EXTERN void spi_setup(const spi_interface* interface);
+EXTERN void spi_write(const spi_interface* interface, uint8_t addr, uint8_t data);
 
 #undef SPI_IMPORT
 #undef EXTERN

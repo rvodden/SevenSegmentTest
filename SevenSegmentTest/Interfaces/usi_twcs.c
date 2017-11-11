@@ -11,7 +11,7 @@
 #include <util/delay.h>
 
 #define SPI_IMPORT
-#include "SPI.h"
+#include "spi.h"
 
 #define TWO_WIRE_IMPORT
 #include "usi_twcs.h"
@@ -23,7 +23,7 @@
 
 /* Declarations of opaque structures */
 
-struct SPI_interface
+struct spi_interface
 {
 	volatile uint8_t* scl_direction_register; /** the register which controls the direction of the SCL pin */
 	volatile uint8_t* scl_port;				  /** the port for SCL (used for writing) */
@@ -47,7 +47,7 @@ struct SPI_interface
 
 /* Private Functions */
 
- void SPI_Push(const SPI_interface *interface, uint8_t data) {
+ void SPI_Push(const spi_interface *interface, uint8_t data) {
 	 *(interface->scl_port) &= ~(1 << interface->scl_bit);
 	 *(interface->usi_data_register) = data;
 
@@ -69,7 +69,7 @@ struct SPI_interface
 
 /* Implementation of public functions */
 
-SPI_interface *tw_create_spi_interface( 
+spi_interface *tw_create_spi_interface( 
 	volatile uint8_t* scl_direction_register, 
 	volatile uint8_t* scl_port, 
 	volatile uint8_t* scl_pin, 
@@ -90,7 +90,7 @@ SPI_interface *tw_create_spi_interface(
 	volatile uint8_t* usi_status_register 
 	)
 {
-	SPI_interface *interface = malloc(sizeof(SPI_interface));
+	spi_interface *interface = malloc(sizeof(spi_interface));
 
 	interface->scl_direction_register = scl_direction_register;
 	interface->scl_port = scl_port;
@@ -113,7 +113,7 @@ SPI_interface *tw_create_spi_interface(
 	return interface;
 }
 
- void SPI_Setup(const SPI_interface *interface) {
+ void spi_setup(const spi_interface *interface) {
 	 /* de-select the correct chip */
 	 *(interface->cs_direction_register) |= (1 << interface->cs_bit);
 
@@ -132,7 +132,7 @@ SPI_interface *tw_create_spi_interface(
 										 (0x0 << USICNT0);											   /* reset counter */
  }
 
- void SPI_Write(const SPI_interface *interface, uint8_t addr, uint8_t data) {
+ void spi_write(const spi_interface *interface, uint8_t addr, uint8_t data) {
 
 	 /* at this stage we should detect if this is a read or write operation - but I'm only doing writes right now */
 

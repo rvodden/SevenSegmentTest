@@ -17,7 +17,8 @@
 
 #define F_CPU 1000000UL
 
-#define LED PB4
+#define LED PB1
+#define TS  PB3
 
 
 EXTERN void board_init();

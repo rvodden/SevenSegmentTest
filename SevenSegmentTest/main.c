@@ -17,14 +17,11 @@
 int main(void)
 {
 	DDRB |=	(1<<LED);
+	
 
 	board_init();
 
 	/* Replace with your application code */
-    while (1)
-    {
-		PORTB ^= (1<<LED);
-		_delay_ms(500);
-    }
+    while (1);
 }
 

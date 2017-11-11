@@ -13,8 +13,8 @@ Drivers/max7221.d Drivers/max7221.o: ../Drivers/max7221.c \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\version.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\fuse.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\lock.h \
- ../Board/board.h ../Services/SPI.h ../Services/7segment.h \
- ../Services/SPI.h ../Drivers/max7221.h
+ ../Board/board.h ../Interfaces/spi.h ../Services/7segment.h \
+ ../Interfaces/SPI.h ../Drivers/max7221.h
 
 c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdlib.h:
 
@@ -46,10 +46,10 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 
 ../Board/board.h:
 
-../Services/SPI.h:
+../Interfaces/spi.h:
 
 ../Services/7segment.h:
 
-../Services/SPI.h:
+../Interfaces/SPI.h:
 
 ../Drivers/max7221.h:

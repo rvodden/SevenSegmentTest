@@ -20,7 +20,7 @@
 #define EXTERN extern
 #endif /* TWO_WIRE_IMPORT */
 
-EXTERN SPI_interface *tw_create_spi_interface(
+EXTERN spi_interface *tw_create_spi_interface(
 	volatile uint8_t* scl_direction_register, /** the register which controls the direction of the SCL pin */
 	volatile uint8_t* scl_port,				  /** the port for SCL (used for writing) */
 	volatile uint8_t* scl_pin,				  /** the pin for SCL (used for reading) */
