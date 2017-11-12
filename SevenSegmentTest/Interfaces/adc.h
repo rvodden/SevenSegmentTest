@@ -8,6 +8,8 @@
 #ifndef ADC_H_
 #define ADC_H_
 
+#include <stdint.h>
+
 #ifdef ADC_IMPORT
 #define EXTERN
 #else

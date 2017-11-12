@@ -61,7 +61,7 @@ EXTERN void ss_set_dp(ss_instance *instance, uint8_t digit);
 /**
  * Initializes the 7 segment display module.                                                                    
  */
-EXTERN ss_instance* ss_init( const spi_interface *interface, int digits );
+EXTERN void ss_setup( const ss_instance* instance );
 
 #undef SSEGMENT_IMPORT
 #undef EXTERN
