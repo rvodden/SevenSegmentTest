@@ -36,7 +36,11 @@ struct spi_interface
 };
 
 /* Private Functions */
+
+/* prototypes */
 void SPI_Push(const spi_interface *interface, uint8_t data);
+
+/* declarations */
 void SPI_Push(const spi_interface *interface, uint8_t data) {
 	ioport_setlow(interface->scl);
 	*(interface->usi_data_register) = data;

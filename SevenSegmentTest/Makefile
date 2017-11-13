@@ -34,11 +34,10 @@ CFLAGS += -Wall
 CFLAGS += -Wextra 
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-prototypes
-#CFLAGS += -mshort-calls
-#CFLAGS += -fno-unit-at-a-time
-#CFLAGS += -Wundef
-#CFLAGS += -Wunreachable-code
-#CFLAGS += -Wsign-compare
+CFLAGS += -fno-unit-at-a-time
+CFLAGS += -Wundef
+CFLAGS += -Wunreachable-code
+CFLAGS += -Wsign-compare
 CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
@@ -65,21 +64,8 @@ REMOVE = rm -f
 REMOVEDIR = rm -rf
 NM = avr-nm
 COPY = cp
-
-# Define Messages
-MSG_ERRORS_NONE = Errors: none
-MSG_SIZE_BEFORE = Size before: 
-MSG_SIZE_AFTER = Size after:
-MSG_COFF = Converting to AVR COFF:
-MSG_EXTENDED_COFF = Converting to AVR Extended COFF:
-MSG_FLASH = Creating load file for Flash:
-MSG_EEPROM = Creating load file for EEPROM:
-MSG_EXTENDED_LISTING = Creating Extended Listing:
-MSG_SYMBOL_TABLE = Creating Symbol Table:
-MSG_LINKING = Linking:
-MSG_COMPILING = Compiling C:
-MSG_CLEANING = Cleaning project:
-MSG_CREATING_LIBRARY = Creating library:
+BEAR = bear
+MAKE = make
 
 # Compiler flags to generate dependency files.
 GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
@@ -200,6 +186,9 @@ clean_list :
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+
+compile_commands.json:
+	$(BEAR) $(MAKE)
 
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
