@@ -36,25 +36,25 @@ struct spi_interface
 };
 
 /* Private Functions */
-
- void SPI_Push(const spi_interface *interface, uint8_t data) {
-	 ioport_setlow(interface->scl);
-	 *(interface->usi_data_register) = data;
-	 *(interface->usi_status_register) = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)| /* Clear flags */
+void SPI_Push(const spi_interface *interface, uint8_t data);
+void SPI_Push(const spi_interface *interface, uint8_t data) {
+	ioport_setlow(interface->scl);
+	*(interface->usi_data_register) = data;
+	*(interface->usi_status_register) = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)| /* Clear flags */
 										 (0x0 << USICNT0);											  /* set USI to shift 8 bits */
 
-	 do {
-		 _delay_us(T2_TWI);
-		 *(interface->usi_control_register) |= (1 << USITC); /* toggle clock - positive edge */
-		 ioport_pause_until_high(interface->scl);
-		 _delay_us(T4_TWI);
-		 *(interface->usi_control_register) |= (1 << USITC); /* toggle clock - negative edge */
-	 } while (!(*(interface->usi_status_register) & (1 << USIOIF)));
+	do {
+		_delay_us(T2_TWI);
+		*(interface->usi_control_register) |= (1 << USITC); /* toggle clock - positive edge */
+		ioport_pause_until_high(interface->scl);
+		_delay_us(T4_TWI);
+		*(interface->usi_control_register) |= (1 << USITC); /* toggle clock - negative edge */
+	} while (!(*(interface->usi_status_register) & (1 << USIOIF)));
 
-	 /* do reading here when the time comes */
+	/* do reading here when the time comes */
 
-	 _delay_us(T2_TWI);
- }
+    _delay_us(T2_TWI);
+}
 
 /* Implementation of public functions */
 

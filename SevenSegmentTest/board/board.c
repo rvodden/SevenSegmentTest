@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <avr/io.h>
 
-#include "SPI.h"
+#include "spi.h"
 #include "max7221.h"
 #include "7segment.h"
 #include "usi_twcs.h"

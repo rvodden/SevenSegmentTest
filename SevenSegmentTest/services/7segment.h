@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#include "SPI.h"
+#include "spi.h"
 
 #ifdef SSEGMENT_IMPORT
 #define EXTERN

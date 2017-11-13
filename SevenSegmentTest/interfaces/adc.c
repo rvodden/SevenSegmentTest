@@ -27,7 +27,7 @@ struct adc_interface {
 
 /* Private Functions */
 
-void inline adc_wait_for_conversion(const adc_interface* interface) {
+inline void adc_wait_for_conversion(const adc_interface* interface) {
 	while (*(interface->control_a_register) & (1<<ADSC));
 }
 

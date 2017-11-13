@@ -12,7 +12,7 @@
 #ifndef TWO_WIRE_H_
 #define TWO_WIRE_H_
 
-#include "SPI.h"
+#include "spi.h"
 #include "ioport.h"
 
 #ifdef TWO_WIRE_IMPORT

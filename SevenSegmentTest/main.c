@@ -7,7 +7,7 @@
 
 #include "board.h"
 #include "7segment.h"
-#include "SPI.h"
+#include "spi.h"
 #include "ioport.h"
 
 #include <avr/io.h>

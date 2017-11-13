@@ -40,29 +40,29 @@ ioport_interface* ioport_construct (
 	interface->bit = bit;
 
 	return interface;
-};
+}
 
-void inline ioport_setlow(ioport_interface* interface) {
+inline void ioport_setlow(ioport_interface* interface) {
 	*(interface->port) &= ~(1 << interface->bit);
 }
 
-void inline ioport_sethigh(ioport_interface* interface) {
+inline void ioport_sethigh(ioport_interface* interface) {
 	*(interface->port) |= (1 << interface->bit);
 }
 
-void inline ioport_toggle(ioport_interface* interface) {
+inline void ioport_toggle(ioport_interface* interface) {
 	*(interface->port) ^= ( 1 << interface->bit);
 }
 
-void inline ioport_pause_until_high(ioport_interface* interface) {
+inline void ioport_pause_until_high(ioport_interface* interface) {
 	while (!( *(interface->pin) & (1 << interface->bit)));
 }
 
-void inline ioport_configure_as_input(ioport_interface* interface) {
+inline void ioport_configure_as_input(ioport_interface* interface) {
 	*(interface->direction_register) &= ~(1 << interface->bit);
-};
+}
 
-void inline ioport_configure_as_output(ioport_interface* interface) {
+inline void ioport_configure_as_output(ioport_interface* interface) {
 	*(interface->direction_register) |= (1 << interface->bit);
-};
+}
  

@@ -21,7 +21,7 @@
 #define TS  PB3
 
 
-EXTERN void board_init();
+EXTERN void board_init( void );
 
 #undef BOARD_IMPORT
 #undef EXTERN
