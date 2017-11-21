@@ -2,22 +2,22 @@ MCU=attiny85
 
 FORMAT=ihex
 
-TARGET=main
-OBJDIR=obj
+OBJDIR=target
+SRCDIR=src
+TARGET=$(OBJDIR)/main
 
 OPT=s
 CFLAGS = -Wall -g
 
 # Define all source files.
-SRC=$(call rwildcard,,*.c)
+SRC=$(call rwildcard, $(SRCDIR), *.c)
 
 # Define all object files.
 OBJ=$(addprefix $(OBJDIR)/,$(SRC:%.c=%.o))
 
 # Define header directories.
 VPATH=$(call uniq,$(dir $(SRC)))
-EXTRAINCDIRS=$(call uniq,$(dir $(call rwildcard,,*.h)))
-
+EXTRAINCDIRS=$(call uniq,$(dir $(call rwildcard,$(SRCDIR),*.h)))
 
 CSTANDARD= -std=gnu99
 
@@ -53,7 +53,7 @@ LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 # Define programs and commands.
-SHELL = sh
+SHELL = bash
 CC = avr-gcc
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
@@ -65,6 +65,7 @@ REMOVEDIR = rm -rf
 NM = avr-nm
 COPY = cp
 BEAR = bear
+HEAD = head
 MAKE = make
 
 # Compiler flags to generate dependency files.
@@ -103,7 +104,8 @@ sizeafter:
 
 # Display compiler version information.
 gccversion :
-	@$(CC) --version
+	@echo -n "Using "
+	@$(CC) --version | $(HEAD) -1
 
 # Program the device.  
 program: $(TARGET).hex $(TARGET).eep
@@ -117,41 +119,57 @@ extcoff: $(TARGET).elf
 
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf
-	$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+	@echo -n Create final out file \($@\) from ELF file \($^\)...
+	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+	@echo done.
 
 %.eep: %.elf
-	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	@echo -n Create final output file \($@\) from ELF file \($^\)...
+	@-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
+	@echo done.
 
 # Create extended listing file from ELF output file.
 %.lss: %.elf
-	$(OBJDUMP) -h -S -z $< > $@
+	@echo -n Creating extended listing file \($@\) from ELF output file \($^\).
+	@$(OBJDUMP) -h -S -z $< > $@
+	@echo done.
 
 # Create a symbol table from ELF output file.
 %.sym: %.elf
-	$(NM) -n $< > $@
+	@echo -n Creating a symbol table \($@\) from ELF output \($^\)...
+	@$(NM) -n $< > $@
+	@echo done.
 
 # Create library from object files.
 .SECONDARY : $(TARGET).a
 .PRECIOUS : $(OBJ)
 %.a: $(OBJ)
-	$(AR) $@ $(OBJ)
+	@echo -n Creating library ($@) from object files...
+	@$(AR) $@ $(OBJ)
+	@echo done.
 
 # Link: create ELF output file from object files.
 .SECONDEXPANSION:
 .SECONDARY : $(TARGET).elf
 .PRECIOUS : $$(OBJ)
 %.elf: $$(OBJ)
-	$(CC) $(ALL_CFLAGS) $^ --output $@ $(LDFLAGS)
+	@echo -n Creating $@ from object files...
+	@$(CC) $(ALL_CFLAGS) $^ --output $@ $(LDFLAGS)
+	@echo done.
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
+	@echo -n Compiling $^ to object file...
 	@mkdir -p $(dir $@)
-	$(CC) -c $(ALL_CFLAGS) $< -o $@
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@
+	@echo done.
 	
 # Compile: create assembler files from C source files.
 %.s : %.c
-	$(CC) -S $(ALL_CFLAGS) $< -o $@
+	@echo -n Compiling $@ to assembly file.
+	@$(CC) -S $(ALL_CFLAGS) $< -o $@
+	@echo done.
 
 # Create preprocessed source for use in sending a bug report.
 %.i : %.c
@@ -159,30 +177,33 @@ $(OBJDIR)/%.o : %.c
 
 # Helpful debugging target to show what is going on
 show-dirs:
+	@echo "SRC:"
 	@echo $(SRC)
+	@echo "OBJ:"
 	@echo $(OBJ)
+	@echo "INCLUDES:"
 	@echo $(EXTRAINCDIRS)
 
 # Target: clean project.
 clean: begin clean_list end
 
 clean_list :
-	@echo
-	@echo $(MSG_CLEANING)
-	$(REMOVE) $(TARGET).hex
-	$(REMOVE) $(TARGET).eep
-	$(REMOVE) $(TARGET).cof
-	$(REMOVE) $(TARGET).elf
-	$(REMOVE) $(TARGET).map
-	$(REMOVE) $(TARGET).sym
-	$(REMOVE) $(TARGET).lss
-	$(REMOVE) $(OBJ)
-	$(REMOVE) $(OBJ:%.o=%.lst)
-	$(REMOVE) $(SRC:.c=.s)
-	$(REMOVE) $(SRC:.c=.d)
-	$(REMOVE) $(SRC:.c=.i)
-	$(REMOVEDIR) .dep
-	$(REMOVEDIR) $(OBJDIR)
+	@echo -n "Cleaning..."
+	@$(REMOVE) $(TARGET).hex
+	@$(REMOVE) $(TARGET).eep
+	@$(REMOVE) $(TARGET).cof
+	@$(REMOVE) $(TARGET).elf
+	@$(REMOVE) $(TARGET).map
+	@$(REMOVE) $(TARGET).sym
+	@$(REMOVE) $(TARGET).lss
+	@$(REMOVE) $(OBJ)
+	@$(REMOVE) $(OBJ:%.o=%.lst)
+	@$(REMOVE) $(SRC:.c=.s)
+	@$(REMOVE) $(SRC:.c=.d)
+	@$(REMOVE) $(SRC:.c=.i)
+	@$(REMOVEDIR) .dep
+	@$(REMOVEDIR) $(OBJDIR)
+	@echo "...done."
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
@@ -197,7 +218,7 @@ clean clean_list program debug gdb-config show-dirs
 
 # Make does not offer a recursive wildcard function, so here's one:
 define rwildcard=
-	$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
+	$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 endef
 
 define uniq=
